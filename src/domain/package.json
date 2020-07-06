@@ -1,0 +1,21 @@
+{
+  "name": "domain",
+  "version": "0.0.1",
+  "description": "demo with TypeORM.",
+  "devDependencies": {
+    "@types/node": "^8.10.61",
+    "ts-node": "3.3.0",
+    "typescript": "3.3.3333"
+  },
+  "dependencies": {
+    "typeorm": "0.2.22",
+    "reflect-metadata": "^0.1.10",
+    "mysql": "^2.14.1"
+  },
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "clean": "rm -rf domain-layer",
+    "build": "npm run clean && tsc -d",
+    "migration": "npm run build && typeorm migration:generate -n "
+  }
+}
