@@ -1,27 +1,62 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
-import * as entities from "./entity";
-
-const getEntities = () : string[] => {
-    return Object.keys(entities);
+import * as Entities from "./entity";
+const getEntities = () : any[] => {
+  return Object.values(Entities);
 }
 
 const migrate = async () => createConnection({
-    type: "mysql",
-    host: "localhost",
-    port: 3306,
-    username: "root",
-    password: "",
-    database: "demo",
-    synchronize: false,
-    migrationsRun: false,
-    migrations: ["./migration/*.ts"],
-    logging: false,
-    entities: getEntities(),
-  }).then(async connection => {
-    return connection.runMigrations().then(res => res);
+  type: "mysql",
+  host: "localhost",
+  port: 3306,
+  username: "root",
+  password: "",
+  database: "demo",
+  synchronize: false,
+  migrationsRun: false,
+  migrations: ["./migration/*.ts"],
+  logging: false,
+  entities: getEntities(),
+}).then(async connection => {
+  return connection.runMigrations().then(res => res);
 }).catch(error => console.log(error));
 
-migrate().then(res => console.log(res));
 
 export default migrate;
+
+import UnitOfWork from '../infrastructure/unitOfWork/UnitOfWork';
+
+const unw = new UnitOfWork({
+  type: "mysql",
+  host: "localhost",
+  port: 3306,
+  username: "root",
+  password: "",
+  database: "demo",
+  synchronize: false,
+  migrationsRun: false,
+  migrations: ["./migration/*.ts"],
+  logging: false,
+  entities: getEntities(),
+});
+
+const demo = async () => {
+  await unw.start();
+
+  const detergentRepo = unw.getRepository(Entities.Detergent);
+  const rawMaterialRepo = unw.getRepository(Entities.RawMaterial);
+
+  const work = async () => {
+    await detergentRepo.save({
+      name: "D003",
+      number: "D003"
+    });
+    await rawMaterialRepo.save({
+      name: "RM003"
+    });
+  }
+
+  await unw.complete(work);
+}
+
+demo().then(res => console.log(res)).catch(err => console.log(err));
